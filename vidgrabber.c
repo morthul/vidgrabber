@@ -144,7 +144,7 @@ int connectToIP(const char *ip) {
     int err = connect_nonb(sockfd, (const struct sockaddr *)&addr, sizeof(addr), 5);
     // int err = connect(sockfd, (const struct sockaddr *)&addr, sizeof(addr));
     if (err != 0) {
-        fprintf(stderr, "Error with sockies: %d.", errno);
+        fprintf(stderr, "Error with sockies: %d.\n", errno);
         return -1;
     }
     assert(err  == 0);
