@@ -247,14 +247,25 @@ static void check_camera(const char *ip, struct timeval *last_capture) {
                         gettimeofday(&end_capture, NULL);
                         if (snapshotHTTP) {
                             char *snapshot = startOfDataForHTTPRequest(snapshotHTTP);
+                            // TODO: All the lens here are now wrong and reading over the buffer, right? We should be offsetting the
+                            //       len by where snapshot walked to.
                             syslog(LOG_WARNING, "[%s] Captured image of size %zu bytes in %f\n", ip, len, difference_of_times(&end_capture, &start_capture));
                             char *filePath = pathForImage();
                             syslog(LOG_WARNING, "[%s] Saving to path %s\n", ip, filePath);
                             FILE *file = fopen(filePath, "w");
-                            free(filePath);
                             fwrite(snapshot, sizeof(char), len, file);
                             fclose(file);
                             free(snapshotHTTP);
+                            size_t filePathLen = strlen(filePath);
+                            // TODO: Lazy dan not using memcpy
+                            filePath[filePathLen-3] = 'm';
+                            filePath[filePathLen-2] = 'o';
+                            filePath[filePathLen-1] = 't';
+                            syslog(LOG_WARNING, "[%s] Saving motion data to %s\n", ip, filePath);
+                            file = fopen(filePath, "w");
+                            fwrite(instr, sizeof(char), strlen(instr), file);
+                            fclose(file);
+                            free(filePath);
                             gettimeofday(last_capture, NULL);
                         } else {
                             syslog(LOG_WARNING, "[%s] Error capturing image.\n", ip);
